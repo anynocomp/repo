@@ -2,9 +2,8 @@ import streamlit as st
 from dotenv import load_dotenv
 from PyPDF2 import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import HuggingFaceInstructEmbeddings
+from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.vectorstores import FAISS
-from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 from htmlTemplates import css, bot_template, user_template
@@ -36,17 +35,16 @@ def get_text_chunks(text):
 def get_vectorstore(text_chunks):
     if not text_chunks:
         raise ValueError("No text chunks were generated. Cannot create vectorstore.")
-    embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-base")
+    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
     vectorstore = FAISS.from_texts(texts=text_chunks, embedding=embeddings)
     return vectorstore
 
 # Set up the conversational retrieval chain
 def get_conversation_chain(vectorstore):
     llm = HuggingFaceHub(
-        repo_id="mistralai/Mistral-7B-Instruct-v0.2",
+        repo_id="google/flan-t5-large",
         model_kwargs={"temperature": 0.5, "max_length": 512}
     )
-    llm.client.api_url = "https://https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
     memory = ConversationBufferMemory(memory_key='chat_history', return_messages=True)
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
