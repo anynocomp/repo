@@ -94,7 +94,7 @@ def main():
                     st.error("Text chunking failed. Please check the input documents.")
                     return
 
-                st.toast(f"Extracted {len(text_chunks)} chunks from your documents.")
+                st.success(f"Extracted {len(text_chunks)} chunks from your documents.")
                 vectorstore = get_vectorstore(text_chunks)
                 st.session_state.conversation = get_conversation_chain(vectorstore)
                 st.success("Documents processed and chat is ready!")
